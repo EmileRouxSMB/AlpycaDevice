@@ -252,3 +252,13 @@ along with rst-check, leaving rstcheck as the linter. Good enough.
 -----------
 * Fix ClientID and ClientTransactionID in shr.py per GitHub #17. Release 1.0.2
 
+20-Feb-2025
+-----------
+* ALERT: USE THE SYSTEMWIDE P11 INTERPRETER NOT VIRTUAL ENVIRONMENT FOR  DOCUMENT LINTING AND BUILDING
+  - It appears that the RST is syntax colored byt not linted. No esbonio, etc.
+* Back to review the rotator device for threading and timers, and FRAGILITY ALERT there are errors in conf.py
+  - No module named 'rinoh' [Ln 10, Col1]
+  - Import "rinoh.frontend.rst" could not be resolved [Ln 10, Col 6]
+    -> from rinoh.frontend.rst import DocutilsInlineNode
+  - Nonetheless the PDF Builds!! ** NEVER MIND **
+
