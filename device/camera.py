@@ -971,14 +971,7 @@ class imagearrayvariant:
             # ----------------------
             image = np.random.randint(0, 255, (12, 16), dtype=np.int32)
 
-            # Conversion en liste JSON compatible
-            # val = {
-            #     "Type": ImageArrayElementTypes.UInt16,  # ASCOM expects this field
-            #     "Rank": 2,        # ASCOM expects this field
-            #     "Value": image.tolist()
-            # }
-
-            val = []
+            val = image.tolist()
             # ----------------------
             msg = PropertyResponse(val, req)
             msg.Rank = 2
