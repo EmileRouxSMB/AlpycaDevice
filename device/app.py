@@ -77,7 +77,7 @@ from shr import set_shr_logger
 ##############################
 # FOR EACH ASCOM DEVICE TYPE #
 ##############################
-import rotator
+import camera
 
 #--------------
 API_VERSION = 1
@@ -223,14 +223,14 @@ def main():
     # Share this logger throughout
     log.logger = logger
     exceptions.logger = logger
-    rotator.start_rot_device(logger)
+    camera.start_cam_device(logger)
     discovery.logger = logger
     set_shr_logger(logger)
 
     #########################
     # FOR EACH ASCOM DEVICE #
     #########################
-    rotator.logger = logger
+    camera.logger = logger
 
     # -----------------------------
     # Last-Chance Exception Handler
@@ -253,14 +253,14 @@ def main():
     #########################
     # FOR EACH ASCOM DEVICE #
     #########################
-    init_routes(falc_app, 'rotator', rotator)
+    init_routes(falc_app, 'camera', camera)
     #
     # Initialize routes for Alpaca support endpoints
     falc_app.add_route('/management/apiversions', management.apiversions())
     falc_app.add_route(f'/management/v{API_VERSION}/description', management.description())
     falc_app.add_route(f'/management/v{API_VERSION}/configureddevices', management.configureddevices())
     falc_app.add_route('/setup', setup.svrsetup())
-    falc_app.add_route(f'/setup/v{API_VERSION}/rotator/{{devnum}}/setup', setup.devsetup())
+    falc_app.add_route(f'/setup/v{API_VERSION}/camera/{{devnum}}/setup', setup.devsetup())
 
     #
     # Install the unhandled exception processor. See above,

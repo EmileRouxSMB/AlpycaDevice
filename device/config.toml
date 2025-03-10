@@ -1,4 +1,4 @@
-title = "Alpaca Sample Driver (Rotator)"
+title = "Alpaca Sample Driver (Cam)"
 
 [network]
 ip_address = ''             # Any address

@@ -86,7 +86,7 @@ def set_shr_logger(lgr):
 class DeviceMetadata:
     """ Metadata describing the Alpaca Device/Server """
     Version = '0.2'
-    Description = 'Alpaca Sample Rotator '
+    Description = 'Alpaca Device/Server '
     Manufacturer = 'ASCOM Initiative'
 
 # --------------------------------
@@ -246,7 +246,6 @@ class PropertyResponse():
 #       # This trickery allows serializing the StateValue object into the JSON
         # https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
         return json.dumps(self, default=lambda o: o.__dict__)
-
 # --------------
 # MethodResponse
 # --------------
