@@ -246,6 +246,82 @@ class PropertyResponse():
 #       # This trickery allows serializing the StateValue object into the JSON
         # https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
         return json.dumps(self, default=lambda o: o.__dict__)
+
+import numpy as np
+import struct
+class ImageArrayResponse(PropertyResponse):
+    """JSON response for an Alpaca Property (GET) Request"""
+    def __init__(self, value, req: Request, err = Success()):
+        """Initialize an ``ImageArrayResponse`` object. This is a subclass of PropertyResponse
+
+        Args:
+            value:  The value of the requested property, or None if there was an
+                exception.
+            req: The Falcon Request property that was provided to the responder.
+            err: An Alpaca exception class as defined in the exceptions
+                or defaults to :py:class:`~exceptions.Success`
+
+        Notes:
+            * Bumps the ServerTransactionID value and returns it in sequence
+        """
+        super().__init__(value, req, err)
+        self.Type = 2
+        self.Rank = 2
+
+    @property
+    def binary(self) -> bytes:
+        # Return the binary for the Property Response
+        if (self.ErrorNumber == 0):
+
+            # Convert the 2d Numpy array to bytes
+            # This is at least 3x faster than using Numpy native tobytes(order='c)
+            # 0.5secs vs 1.5secs on a Raspberry Pi 3 for a 4056x3040 array
+            # Recommended by ChatGPT after I asked it to suggest a faster way
+            #
+            # b = self.Value.tobytes(order='c')   # this is the original slow version
+
+            # Ensure the desired data type and byte order
+            value = self.Value.astype(np.int32, order='C')
+
+            # Get the underlying data buffer as a ctypes array
+            data_array = np.ctypeslib.as_array(value)
+            data_array = data_array.ravel()
+
+            # Obtain the byte string
+            b = data_array.tobytes(order='C')
+
+            return struct.pack(f"<IIIIIIIIIII{str(self.Value.nbytes)}s",
+                1,                              # Metadata Version = 1
+                int(self.ErrorNumber),               
+                self.ClientTransactionID,
+                self.ServerTransactionID,
+                44,                             # DataStart
+                2,                              # ImageElementType = 2 = int32
+                2,                              # TransmissionElementType = 2 = int32
+                self.Rank,                      # Rank = 2 = bayer
+                self.Value.shape[0],            # length of column
+                self.Value.shape[1],            # length of rows
+                0,                              # 0 for 2d array
+                b                               # The bytes of the image
+                )
+
+        else:
+            error_message = self.ErrorMessage.encode('utf-8')
+            return struct.pack(f"<IIIIIIIIIII{len(error_message)}s",
+                1,                              # Metadata Version = 1
+                self.ErrorNumber,               
+                self.ClientTransactionID,
+                self.ServerTransactionID,
+                44,                             # DataStart
+                0,                              # ImageElementType = 2 = uint32
+                0,                              # TransmissionElementType = 8 = uint16
+                0,                              # Rank = 2 = bayer
+                0,                              # length of column
+                0,                              # length of rows
+                0,                              # 0 for 2d array
+                error_message                   # UTF8 encoded error message
+                )
+
 # --------------
 # MethodResponse
 # --------------
@@ -266,7 +342,10 @@ class MethodResponse():
         self.ServerTransactionID = getNextTransId()
         # This is crazy ... if casing is incorrect here, we're supposed to return the default 0
         # even if the caseless check coming in returned a valid number. This is for PUT only.
-        self.ClientTransactionID = int(get_request_field('ClientTransactionID', req, False, 0))
+        CTID = get_request_field('ClientTransactionID', req, False, 0)
+        # set CTID to int if possible, otherwise set it to 0
+        self.ClientTransactionID = int(CTID) if str(CTID).isdigit() else 0
+        #self.ClientTransactionID = int(get_request_field('ClientTransactionID', req, False, 0))
         if err.Number == 0 and not value is None:
             self.Value = value
             logger.info(f'{req.remote_addr} <- {str(value)}')
