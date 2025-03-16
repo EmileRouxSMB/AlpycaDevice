@@ -90,10 +90,9 @@ class Config:
     # --------------
     # Device Section
     # --------------
-    can_reverse: bool = get_toml('device', 'can_reverse')
-    step_size: float = get_toml('device', 'step_size')
-    steps_per_sec: int = get_toml('device', 'steps_per_sec')
-    sync_write_connected: bool = get_toml('device', 'sync_write_connected')
+    cti_path: str = get_toml('device', 'cti_path')
+    PixelFormat: str = get_toml('device', 'PixelFormat')
+
     # ---------------
     # Logging Section
     # ---------------

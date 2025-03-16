@@ -9,10 +9,8 @@ location = 'Anywhere on Earth'  # Anything you want here
 verbose_driver_exceptions = true
 
 [device]
-can_reverse = true
-step_size = 1.0
-steps_per_sec = 6
-sync_write_connected = true     # True to emulate sync Connected = true (for Conform)
+cti_path = 'C:\Program Files\SVS-VISTEK GmbH\SVCam Kit\TLUsb\bin\sv_u3v_tl_x64.cti'
+PixelFormat = 'Mono12Packed'
 
 [logging]
 log_level = 'INFO'
